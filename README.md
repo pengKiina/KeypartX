@@ -35,7 +35,9 @@ Original sentence: Thai food was great,delicousr and not expensive, we loved it.
 
 <img src="https://github.com/pengKiina/KeypartX/raw/main/images/nlp_target.png" width="70%" height="35%" align="center" />
 
+
 * 2 Community and Gray Perceptual Unit Networks 
+
 <img src="https://github.com/pengKiina/KeypartX/blob/main/images/community_gray.gif" width="70%" height="45%" align="center" />
 
 ## Citation
