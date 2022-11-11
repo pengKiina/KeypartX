@@ -30,10 +30,10 @@ with one of the examples as follows:
 
 ## Visualization Examples 
 * 1 NLP Target
-<img src="images/nlp_target.png" width="70%" height="40%" align="center" />
+<img src="https://github.com/pengKiina/KeypartX/raw/main/images/nlp_target.png" width="70%" height="40%" align="center" />
 
 * 2 Community and Gray Perceptual Unit Networks 
-<img src="images\community_gray.gif" width="70%" height="40%" align="center" />
+<img src="https://github.com/pengKiina/KeypartX/blob/main/images/community_gray.gif" width="70%" height="45%" align="center" />
 
 ## Citation
 To cite the [KeypartX paper](https://arxiv.org/abs/2209.11844), please use the following bibtex reference:
