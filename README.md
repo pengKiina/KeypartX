@@ -30,6 +30,7 @@ with one of the examples as follows:
 
 ## Visualization Examples 
 * 1 NLP Target
+""""Thai food was great,delicousr and not expensive, we loved it. We visited 3 beach resorts, they are higly recommened... We had "Fire-Vodka" !!!  """
 <img src="https://github.com/pengKiina/KeypartX/raw/main/images/nlp_target.png" width="70%" height="40%" align="center" />
 
 * 2 Community and Gray Perceptual Unit Networks 
