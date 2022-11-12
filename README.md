@@ -23,10 +23,10 @@ with one of the examples as follows:
 
 | Name  | Link  |
 |---|---|
-| KepartX Quick Start  | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1VdKIJtMMcYRnXsne87azY7B1FXp9FpD1?usp=sharing)  |
-| KepartX Sentence NLP | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1hjAU-_RP7GGzMm6rnpdJZR7LSY0KS81E?usp=sharing) |
-| KepartX VS Topic Modelling |  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/14XvylCMBZ2oUnjpZhnf_658paVdvAhp0?usp=sharing) |
-| KepartX Network Comparison |  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1vTx9LwIGXt5so5IdOr4zsqrgSm4sHnYe?usp=sharing)  |
+| KeypartX Quick Start  | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1VdKIJtMMcYRnXsne87azY7B1FXp9FpD1?usp=sharing)  |
+| KeypartX Sentence NLP | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1hjAU-_RP7GGzMm6rnpdJZR7LSY0KS81E?usp=sharing) |
+| KeypartX VS Topic Modelling |  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/14XvylCMBZ2oUnjpZhnf_658paVdvAhp0?usp=sharing) |
+| KeypartX Network Comparison |  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1vTx9LwIGXt5so5IdOr4zsqrgSm4sHnYe?usp=sharing)  |
 
 ## Visualization Examples 
 * 1 NLP Target  
