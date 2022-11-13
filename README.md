@@ -10,12 +10,12 @@ KeypartX: a graph-based approach to represent perception (text in general) by ke
 
 ## Key Parts: Noun, Adjective, Verb and Emoji 
 
-The following wordclouds are generated from a real example of corpus comprised of reviews by those who visit Thailand. 
+The following wordclouds are generated from a real example of corpus comprised of reviews by those who visit Thailand. KeypartX NLP result from original text: “Thai food was great we loved it. Thiland also has beautiful beach resorts, we will come to Thailand again👍”
 
-* Keyparts Wordcloud
+* Keyparts Wordcloud | KeypartX NLP Target 
 
-<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="35%" height="35%" align="center" />
-
+<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="35%" height="35%" align="center" /><img style="border:1px solid black"
+src="https://github.com/pengKiina/KeypartX/raw/main/images/keyparts_sent_network.png" width="40%" height="40%" align="center" />
 
 ## Installation
 
