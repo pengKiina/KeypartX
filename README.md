@@ -1,5 +1,5 @@
 
-KeypartX: a graph-based approach to represent perception (text in general) by key parts of speech. KeypartX solved the coherence crux that current topic modeling algorithms are trying to deal with but failed. KeypartX extract the topics from text corpus syntactically, semantically and pragmatically instead of a meaningless combination of words from topic modeling.
+KeypartX: a graph-based approach to represent perception (text in general) by key parts of speech. KeypartX solved the coherence crux that current topic modeling algorithms are trying to deal with but failed. KeypartX extracts the topics from text corpus syntactically, semantically and pragmatically instead of a meaningless combination of words from topic modeling.
 
 ## Installation
 
@@ -39,6 +39,10 @@ Original sentence: """Thai food was great,delicousr and not expensive, we loved 
 * 2 Community and Gray Perceptual Unit Networks 
 
 <img src="https://github.com/pengKiina/KeypartX/raw/main/images/community_gray.gif" width="70%" height="45%" align="center" />
+
+* 3 Key Parts Wordcloud: Noun, Adjective, Verb, Emoji 
+
+<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="70%" height="70%" align="center" />
 
 ## Citation
 To cite the [KeypartX paper](https://arxiv.org/abs/2209.11844), please use the following bibtex reference:
