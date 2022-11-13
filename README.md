@@ -14,7 +14,7 @@ The following wordclouds are generated from a real example of corpus comprised o
 
 * Keyparts Wordcloud
 
-<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="65%" height="55%" align="center" />
+<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="35%" height="35%" align="center" />
 
 
 ## Installation
