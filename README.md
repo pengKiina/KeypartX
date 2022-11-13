@@ -40,11 +40,11 @@ Original sentence: """Thai food was great,delicousr and not expensive, we loved 
 
 * 2 Community and Gray Perceptual Unit Networks 
 
-<img src="https://github.com/pengKiina/KeypartX/raw/main/images/community_gray.gif" width="70%" height="45%" align="center" />
+<img src="https://github.com/pengKiina/KeypartX/raw/main/images/community_gray.gif" width="70%" height="50%" align="center" />
 
 * 3 Key Parts Wordcloud: Noun, Adjective, Verb, Emoji 
 
-<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="70%" height="70%" align="center" />
+<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="70%" height="55%" align="center" />
 
 ## Citation
 To cite the [KeypartX paper](https://arxiv.org/abs/2209.11844), please use the following bibtex reference:
