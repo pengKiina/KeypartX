@@ -5,7 +5,7 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2203.05794-<COLOR>.svg)](https://arxiv.org/abs/2209.11844)
 
 # KeypartX
-
+<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypartx_logo.png" width="40%" height="20%" align="right" />
 KeypartX: a graph-based approach to represent perception (text in general) by key parts of speech. KeypartX solved the coherence crux that current topic modeling algorithms are trying to deal with but failed. KeypartX extracts the topics from text corpus syntactically, semantically and pragmatically instead of a meaningless combination of words from topic modeling.
 
 ## Key Parts: Noun, Adjective, Verb and Emoji 
