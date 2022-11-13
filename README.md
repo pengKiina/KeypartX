@@ -3,9 +3,11 @@ KeypartX: a graph-based approach to represent perception (text in general) by ke
 
 ## Key Parts: Noun, Adjective, Verb and Emoji 
 
+The following wordclouds are generated from a real example of corpus comprised of reviews by those who visit Thailand. 
+
 * Keyparts Wordcloud
 
-<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="70%" height="55%" align="center" />
+<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="65%" height="55%" align="center" />
 
 
 ## Installation
