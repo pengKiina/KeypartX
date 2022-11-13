@@ -1,7 +1,12 @@
 
 KeypartX: a graph-based approach to represent perception (text in general) by key parts of speech. KeypartX solved the coherence crux that current topic modeling algorithms are trying to deal with but failed. KeypartX extracts the topics from text corpus syntactically, semantically and pragmatically instead of a meaningless combination of words from topic modeling.
 
-Key Parts: noun, adjective, verb and emoji 
+## Key Parts: Noun, Adjective, Verb and Emoji 
+
+* Keyparts Wordcloud
+
+<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="70%" height="55%" align="center" />
+
 
 ## Installation
 
@@ -42,9 +47,7 @@ Original sentence: """Thai food was great,delicousr and not expensive, we loved 
 
 <img src="https://github.com/pengKiina/KeypartX/raw/main/images/community_gray.gif" width="70%" height="50%" align="center" />
 
-* 3 Key Parts Wordcloud: Noun, Adjective, Verb, Emoji 
 
-<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="70%" height="55%" align="center" />
 
 ## Citation
 To cite the [KeypartX paper](https://arxiv.org/abs/2209.11844), please use the following bibtex reference:
