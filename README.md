@@ -15,7 +15,7 @@ KeypartX: a graph-based approach to represent perception (text in general) by ke
 
 ## Key Parts: Noun, Adjective, Verb and Emoji 
 
-KeypartX NLP result from original text:
+KeypartX Vs Topic Modeling results from the following text:
 
 ``` “Thai food was great we loved it. Thiland also has beautiful beach resorts, we will come to Thailand again👍” ```
 
