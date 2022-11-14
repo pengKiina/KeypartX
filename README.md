@@ -64,8 +64,11 @@ Original sentence: """Thai food was great,delicousr and not expensive, we loved 
 <img src="https://github.com/pengKiina/KeypartX/raw/main/images/nlp_target.png" width="70%" height="35%" align="center" />
 
 * 2 Keyparts Wordclouds
+
 The following wordclouds are generated from a real example of corpus comprised of reviews by those who visit Thailand.
+
 <img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="35%" height="35%" align="center" />
+
 * 3 Community and Gray Perceptual Unit Networks 
 
 <img src="https://github.com/pengKiina/KeypartX/raw/main/images/community_gray.gif" width="70%" height="50%" align="center" />
