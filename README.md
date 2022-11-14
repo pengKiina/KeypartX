@@ -5,17 +5,29 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2203.05794-<COLOR>.svg)](https://arxiv.org/abs/2209.11844)
 
 # KeypartX
+*  No more Topic Modeling
+*  No need Training 
+*  No more Machine Learning but Human Reading
+*  Get the Insight of Text of Big and Small Data 
 <img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypartx_logo.png" width="40%" height="20%" align="right" />
 KeypartX: a graph-based approach to represent perception (text in general) by key parts of speech. KeypartX solved the coherence crux that current topic modeling algorithms are trying to deal with but failed. KeypartX extracts the topics from text corpus syntactically, semantically and pragmatically instead of a meaningless combination of words from topic modeling.
 
+
 ## Key Parts: Noun, Adjective, Verb and Emoji 
 
-The following wordclouds are generated from a real example of corpus comprised of reviews by those who visit Thailand. KeypartX NLP result from original text: “Thai food was great we loved it. Thiland also has beautiful beach resorts, we will come to Thailand again👍”
+KeypartX NLP result from original text:
 
-* Keyparts Wordcloud | KeypartX NLP Target 
+``` “Thai food was great we loved it. Thiland also has beautiful beach resorts, we will come to Thailand again👍” ```
 
-<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="35%" height="35%" align="center" /><img style="border:1px solid black"
+* KeypartX Result 
+
+<img style="border:1px solid black"
 src="https://github.com/pengKiina/KeypartX/raw/main/images/keyparts_sent_network.png" width="40%" height="40%" align="center" />
+
+* Topic Modeling Result
+
+```['food','thailand','resort','great','love', 'beautiful']```
+
 
 ## Installation
 
@@ -51,8 +63,10 @@ Original sentence: """Thai food was great,delicousr and not expensive, we loved 
 
 <img src="https://github.com/pengKiina/KeypartX/raw/main/images/nlp_target.png" width="70%" height="35%" align="center" />
 
-
-* 2 Community and Gray Perceptual Unit Networks 
+* 2 Keyparts Wordclouds
+The following wordclouds are generated from a real example of corpus comprised of reviews by those who visit Thailand.
+<img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypart_wordcloud.png" width="35%" height="35%" align="center" />
+* 3 Community and Gray Perceptual Unit Networks 
 
 <img src="https://github.com/pengKiina/KeypartX/raw/main/images/community_gray.gif" width="70%" height="50%" align="center" />
 
