@@ -1,0 +1,457 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+
+        
+
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1>Gray Unit Community Network</h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 80%;
+                 height: 600px;
+                 background-color: white;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 80%;
+                 height: 600px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+             #config {
+                 float: left;
+                 width: 400px;
+                 height: 600px;
+             }
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+            <div id="config"></div>
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "blue", "font": {"color": "black"}, "id": "airconditioning2n_0", "label": "airconditioning2n_0", "shape": "dot", "title": "airconditioning:4", "value": 2.0}, {"color": "blue", "font": {"color": "black"}, "id": "balcony2n_0", "label": "balcony2n_0", "shape": "dot", "title": "balcony:3", "value": 1.5}, {"color": "blue", "font": {"color": "black"}, "id": "bar2n_0", "label": "bar2n_0", "shape": "dot", "title": "bar:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "bathroom2n_0", "label": "bathroom2n_0", "shape": "dot", "title": "bathroom:5", "value": 2.5}, {"color": "brown", "font": {"color": "black"}, "id": "big2a_0", "label": "big2a_0", "shape": "triangle", "title": "big:1", "value": 0.1}, {"color": "blue", "font": {"color": "black"}, "id": "breakfast2n_0", "label": "breakfast2n_0", "shape": "dot", "title": "breakfast:4", "value": 2.0}, {"color": "blue", "font": {"color": "black"}, "id": "change2n_0", "label": "change2n_0", "shape": "dot", "title": "change:2", "value": 1.0}, {"color": "brown", "font": {"color": "black"}, "id": "clean2a_0", "label": "clean2a_0", "shape": "triangle", "title": "clean:3", "value": 0.30000000000000004}, {"color": "brown", "font": {"color": "black"}, "id": "deluxe2a_0", "label": "deluxe2a_0", "shape": "triangle", "title": "deluxe:1", "value": 0.1}, {"color": "gray", "font": {"color": "black"}, "id": "family2n_0", "label": "family2n_0", "shape": "dot", "title": "family:6", "value": 3.0}, {"color": "blue", "font": {"color": "black"}, "id": "floor2n_0", "label": "floor2n_0", "shape": "dot", "title": "floor:3", "value": 1.5}, {"color": "blue", "font": {"color": "black"}, "id": "fridge2n_0", "label": "fridge2n_0", "shape": "dot", "title": "fridge:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "front2n_0", "label": "front2n_0", "shape": "dot", "title": "front:2", "value": 1.0}, {"color": "gray", "font": {"color": "black"}, "id": "good2a_0", "label": "good2a_0", "shape": "triangle", "title": "good:18", "value": 1.8}, {"color": "brown", "font": {"color": "black"}, "id": "large2a_0", "label": "large2a_0", "shape": "triangle", "title": "large:1", "value": 0.1}, {"color": "blue", "font": {"color": "black"}, "id": "minibar2n_0", "label": "minibar2n_0", "shape": "dot", "title": "minibar:2", "value": 1.0}, {"color": "gray", "font": {"color": "black"}, "id": "pool2n_0", "label": "pool2n_0", "shape": "dot", "title": "pool:19", "value": 9.5}, {"color": "brown", "font": {"color": "black"}, "id": "quiet2a_0", "label": "quiet2a_0", "shape": "triangle", "title": "quiet:1", "value": 0.1}, {"color": "gray", "font": {"color": "black"}, "id": "restaurant2n_0", "label": "restaurant2n_0", "shape": "dot", "title": "restaurant:25", "value": 12.5}, {"color": "blue", "font": {"color": "black"}, "id": "room2n_0", "label": "room2n_0", "shape": "dot", "title": "room:36", "value": 18.0}, {"color": "blue", "font": {"color": "black"}, "id": "roomclassroom2n_0", "label": "roomclassroom2n_0", "shape": "dot", "title": "roomclassroom:1", "value": 0.5}, {"color": "blue", "font": {"color": "black"}, "id": "space2n_0", "label": "space2n_0", "shape": "dot", "title": "space:2", "value": 1.0}, {"color": "brown", "font": {"color": "black"}, "id": "spacious2a_0", "label": "spacious2a_0", "shape": "triangle", "title": "spacious:1", "value": 0.1}, {"color": "gray", "font": {"color": "black"}, "id": "staff2n_0", "label": "staff2n_0", "shape": "dot", "title": "staff:8", "value": 4.0}, {"color": "blue", "font": {"color": "black"}, "id": "terrace2n_0", "label": "terrace2n_0", "shape": "dot", "title": "terrace:4", "value": 2.0}, {"color": "gray", "font": {"color": "black"}, "id": "time2n_0", "label": "time2n_0", "shape": "dot", "title": "time:13", "value": 6.5}, {"color": "brown", "font": {"color": "black"}, "id": "varied2a_0", "label": "varied2a_0", "shape": "triangle", "title": "varied:1", "value": 0.1}, {"color": "brown", "font": {"color": "black"}, "id": "well2a_0", "label": "well2a_0", "shape": "triangle", "title": "well:3", "value": 0.30000000000000004}, {"color": "blue", "font": {"color": "black"}, "id": "window2n_0", "label": "window2n_0", "shape": "dot", "title": "window:2", "value": 1.0}, {"color": "brown", "font": {"color": "black"}, "id": "affordable2a_1", "label": "affordable2a_1", "shape": "triangle", "title": "affordable:1", "value": 0.1}, {"color": "gray", "font": {"color": "black"}, "id": "beach2n_1", "label": "beach2n_1", "shape": "dot", "title": "beach:21", "value": 10.5}, {"color": "blue", "font": {"color": "black"}, "id": "burger2n_1", "label": "burger2n_1", "shape": "dot", "title": "burger:1", "value": 0.5}, {"color": "brown", "font": {"color": "black"}, "id": "cheap2a_1", "label": "cheap2a_1", "shape": "triangle", "title": "cheap:1", "value": 0.1}, {"color": "gray", "font": {"color": "black"}, "id": "clean2a_1", "label": "clean2a_1", "shape": "triangle", "title": "clean:3", "value": 0.30000000000000004}, {"color": "brown", "font": {"color": "black"}, "id": "close2a_1", "label": "close2a_1", "shape": "triangle", "title": "close:1", "value": 0.1}, {"color": "gray", "font": {"color": "black"}, "id": "couple2n_1", "label": "couple2n_1", "shape": "dot", "title": "couple:4", "value": 2.0}, {"color": "blue", "font": {"color": "black"}, "id": "drink2n_1", "label": "drink2n_1", "shape": "dot", "title": "drink:3", "value": 1.5}, {"color": "blue", "font": {"color": "black"}, "id": "food2n_1", "label": "food2n_1", "shape": "dot", "title": "food:16", "value": 8.0}, {"color": "brown", "font": {"color": "black"}, "id": "friendly2a_1", "label": "friendly2a_1", "shape": "triangle", "title": "friendly:3", "value": 0.30000000000000004}, {"color": "brown", "font": {"color": "black"}, "id": "good2a_1", "label": "good2a_1", "shape": "triangle", "title": "good:18", "value": 1.8}, {"color": "gray", "font": {"color": "black"}, "id": "great2a_1", "label": "great2a_1", "shape": "triangle", "title": "great:3", "value": 0.30000000000000004}, {"color": "brown", "font": {"color": "black"}, "id": "high2a_1", "label": "high2a_1", "shape": "triangle", "title": "high:2", "value": 0.2}, {"color": "gray", "font": {"color": "black"}, "id": "hotel2n_1", "label": "hotel2n_1", "shape": "dot", "title": "hotel:29", "value": 14.5}, {"color": "brown", "font": {"color": "black"}, "id": "local2a_1", "label": "local2a_1", "shape": "triangle", "title": "local:1", "value": 0.1}, {"color": "brown", "font": {"color": "black"}, "id": "long2a_1", "label": "long2a_1", "shape": "triangle", "title": "long:1", "value": 0.1}, {"color": "brown", "font": {"color": "black"}, "id": "low2a_1", "label": "low2a_1", "shape": "triangle", "title": "low:1", "value": 0.1}, {"color": "blue", "font": {"color": "black"}, "id": "money2n_1", "label": "money2n_1", "shape": "dot", "title": "money:3", "value": 1.5}, {"color": "gray", "font": {"color": "black"}, "id": "night2n_1", "label": "night2n_1", "shape": "dot", "title": "night:6", "value": 3.0}, {"color": "blue", "font": {"color": "black"}, "id": "picture2n_1", "label": "picture2n_1", "shape": "dot", "title": "picture:1", "value": 0.5}, {"color": "gray", "font": {"color": "black"}, "id": "place2n_1", "label": "place2n_1", "shape": "dot", "title": "place:13", "value": 6.5}, {"color": "gray", "font": {"color": "black"}, "id": "pool2n_1", "label": "pool2n_1", "shape": "dot", "title": "pool:19", "value": 9.5}, {"color": "blue", "font": {"color": "black"}, "id": "price2n_1", "label": "price2n_1", "shape": "dot", "title": "price:11", "value": 5.5}, {"color": "blue", "font": {"color": "black"}, "id": "qualityhotel2n_1", "label": "qualityhotel2n_1", "shape": "dot", "title": "qualityhotel:1", "value": 0.5}, {"color": "blue", "font": {"color": "black"}, "id": "restaurant2n_1", "label": "restaurant2n_1", "shape": "dot", "title": "restaurant:25", "value": 12.5}, {"color": "gray", "font": {"color": "black"}, "id": "room2n_1", "label": "room2n_1", "shape": "dot", "title": "room:36", "value": 18.0}, {"color": "blue", "font": {"color": "black"}, "id": "service2n_1", "label": "service2n_1", "shape": "dot", "title": "service:7", "value": 3.5}, {"color": "gray", "font": {"color": "black"}, "id": "shop2n_1", "label": "shop2n_1", "shape": "dot", "title": "shop:4", "value": 2.0}, {"color": "gray", "font": {"color": "black"}, "id": "staff2n_1", "label": "staff2n_1", "shape": "dot", "title": "staff:8", "value": 4.0}, {"color": "gray", "font": {"color": "black"}, "id": "taste2n_1", "label": "taste2n_1", "shape": "dot", "title": "taste:6", "value": 3.0}, {"color": "brown", "font": {"color": "black"}, "id": "tasty2a_1", "label": "tasty2a_1", "shape": "triangle", "title": "tasty:1", "value": 0.1}, {"color": "blue", "font": {"color": "black"}, "id": "thai2nfood2n_1", "label": "thai2nfood2n_1", "shape": "dot", "title": "thai food:5", "value": 2.5}, {"color": "blue", "font": {"color": "black"}, "id": "time2n_1", "label": "time2n_1", "shape": "dot", "title": "time:13", "value": 6.5}, {"color": "blue", "font": {"color": "black"}, "id": "value2n_1", "label": "value2n_1", "shape": "dot", "title": "value:3", "value": 1.5}, {"color": "blue", "font": {"color": "black"}, "id": "beach2n_2", "label": "beach2n_2", "shape": "dot", "title": "beach:21", "value": 10.5}, {"color": "blue", "font": {"color": "black"}, "id": "bug2n_2", "label": "bug2n_2", "shape": "dot", "title": "bug:2", "value": 1.0}, {"color": "brown", "font": {"color": "black"}, "id": "congested2a_2", "label": "congested2a_2", "shape": "triangle", "title": "congested:1", "value": 0.1}, {"color": "blue", "font": {"color": "black"}, "id": "day2n_2", "label": "day2n_2", "shape": "dot", "title": "day:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "door2n_2", "label": "door2n_2", "shape": "dot", "title": "door:5", "value": 2.5}, {"color": "blue", "font": {"color": "black"}, "id": "example2n_2", "label": "example2n_2", "shape": "dot", "title": "example:2", "value": 1.0}, {"color": "brown", "font": {"color": "black"}, "id": "expensive2a_2", "label": "expensive2a_2", "shape": "triangle", "title": "expensive:1", "value": 0.1}, {"color": "gray", "font": {"color": "black"}, "id": "food2n_2", "label": "food2n_2", "shape": "dot", "title": "food:16", "value": 8.0}, {"color": "gray", "font": {"color": "black"}, "id": "good2a_2", "label": "good2a_2", "shape": "triangle", "title": "good:18", "value": 1.8}, {"color": "gray", "font": {"color": "black"}, "id": "great2a_2", "label": "great2a_2", "shape": "triangle", "title": "great:3", "value": 0.30000000000000004}, {"color": "gray", "font": {"color": "black"}, "id": "gym2n_2", "label": "gym2n_2", "shape": "dot", "title": "gym:6", "value": 3.0}, {"color": "blue", "font": {"color": "black"}, "id": "hotel2n_2", "label": "hotel2n_2", "shape": "dot", "title": "hotel:29", "value": 14.5}, {"color": "blue", "font": {"color": "black"}, "id": "island2n_2", "label": "island2n_2", "shape": "dot", "title": "island:5", "value": 2.5}, {"color": "blue", "font": {"color": "black"}, "id": "khaolak2n_2", "label": "khaolak2n_2", "shape": "dot", "title": "khaolak:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "location2n_2", "label": "location2n_2", "shape": "dot", "title": "location:6", "value": 3.0}, {"color": "brown", "font": {"color": "black"}, "id": "magnificent2a_2", "label": "magnificent2a_2", "shape": "triangle", "title": "magnificent:1", "value": 0.1}, {"color": "blue", "font": {"color": "black"}, "id": "meter2n_2", "label": "meter2n_2", "shape": "dot", "title": "meter:2", "value": 1.0}, {"color": "gray", "font": {"color": "black"}, "id": "nice2a_2", "label": "nice2a_2", "shape": "triangle", "title": "nice:3", "value": 0.30000000000000004}, {"color": "gray", "font": {"color": "black"}, "id": "night2n_2", "label": "night2n_2", "shape": "dot", "title": "night:6", "value": 3.0}, {"color": "brown", "font": {"color": "black"}, "id": "nottight2a_2", "label": "nottight2a_2", "shape": "triangle", "title": "nottight:1", "value": 0.1}, {"color": "gray", "font": {"color": "black"}, "id": "pool2n_2", "label": "pool2n_2", "shape": "dot", "title": "pool:19", "value": 9.5}, {"color": "gray", "font": {"color": "black"}, "id": "poolarea2n_2", "label": "poolarea2n_2", "shape": "dot", "title": "poolarea:6", "value": 3.0}, {"color": "brown", "font": {"color": "black"}, "id": "private2a_2", "label": "private2a_2", "shape": "triangle", "title": "private:1", "value": 0.1}, {"color": "blue", "font": {"color": "black"}, "id": "resort2n_2", "label": "resort2n_2", "shape": "dot", "title": "resort:2", "value": 1.0}, {"color": "gray", "font": {"color": "black"}, "id": "restaurant2n_2", "label": "restaurant2n_2", "shape": "dot", "title": "restaurant:25", "value": 12.5}, {"color": "blue", "font": {"color": "black"}, "id": "shop2n_2", "label": "shop2n_2", "shape": "dot", "title": "shop:4", "value": 2.0}, {"color": "blue", "font": {"color": "black"}, "id": "side2n_2", "label": "side2n_2", "shape": "dot", "title": "side:3", "value": 1.5}, {"color": "blue", "font": {"color": "black"}, "id": "swimming2n_2", "label": "swimming2n_2", "shape": "dot", "title": "swimming:2", "value": 1.0}, {"color": "gray", "font": {"color": "black"}, "id": "time2n_2", "label": "time2n_2", "shape": "dot", "title": "time:13", "value": 6.5}, {"color": "blue", "font": {"color": "black"}, "id": "activity2n_3", "label": "activity2n_3", "shape": "dot", "title": "activity:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "barservice2n_3", "label": "barservice2n_3", "shape": "dot", "title": "barservice:2", "value": 1.0}, {"color": "gray", "font": {"color": "black"}, "id": "beach2n_3", "label": "beach2n_3", "shape": "dot", "title": "beach:21", "value": 10.5}, {"color": "blue", "font": {"color": "black"}, "id": "child2n_3", "label": "child2n_3", "shape": "dot", "title": "child:4", "value": 2.0}, {"color": "blue", "font": {"color": "black"}, "id": "couple2n_3", "label": "couple2n_3", "shape": "dot", "title": "couple:4", "value": 2.0}, {"color": "blue", "font": {"color": "black"}, "id": "family2n_3", "label": "family2n_3", "shape": "dot", "title": "family:6", "value": 3.0}, {"color": "gray", "font": {"color": "black"}, "id": "hotel2n_3", "label": "hotel2n_3", "shape": "dot", "title": "hotel:29", "value": 14.5}, {"color": "blue", "font": {"color": "black"}, "id": "plenty2n_3", "label": "plenty2n_3", "shape": "dot", "title": "plenty:4", "value": 2.0}, {"color": "blue", "font": {"color": "black"}, "id": "pool2n_3", "label": "pool2n_3", "shape": "dot", "title": "pool:19", "value": 9.5}, {"color": "blue", "font": {"color": "black"}, "id": "poolarea2n_3", "label": "poolarea2n_3", "shape": "dot", "title": "poolarea:6", "value": 3.0}, {"color": "gray", "font": {"color": "black"}, "id": "restaurant2n_3", "label": "restaurant2n_3", "shape": "dot", "title": "restaurant:25", "value": 12.5}, {"color": "gray", "font": {"color": "black"}, "id": "room2n_3", "label": "room2n_3", "shape": "dot", "title": "room:36", "value": 18.0}, {"color": "brown", "font": {"color": "black"}, "id": "small2a_3", "label": "small2a_3", "shape": "triangle", "title": "small:2", "value": 0.2}, {"color": "blue", "font": {"color": "black"}, "id": "street2n_3", "label": "street2n_3", "shape": "dot", "title": "street:1", "value": 0.5}, {"color": "blue", "font": {"color": "black"}, "id": "sunlounger2n_3", "label": "sunlounger2n_3", "shape": "dot", "title": "sunlounger:4", "value": 2.0}, {"color": "gray", "font": {"color": "black"}, "id": "time2n_3", "label": "time2n_3", "shape": "dot", "title": "time:13", "value": 6.5}, {"color": "blue", "font": {"color": "black"}, "id": "villa2n_3", "label": "villa2n_3", "shape": "dot", "title": "villa:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "bangkok2n_4", "label": "bangkok2n_4", "shape": "dot", "title": "bangkok:4", "value": 2.0}, {"color": "blue", "font": {"color": "black"}, "id": "dinner2n_4", "label": "dinner2n_4", "shape": "dot", "title": "dinner:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "evening2n_4", "label": "evening2n_4", "shape": "dot", "title": "evening:4", "value": 2.0}, {"color": "gray", "font": {"color": "black"}, "id": "food2n_4", "label": "food2n_4", "shape": "dot", "title": "food:16", "value": 8.0}, {"color": "blue", "font": {"color": "black"}, "id": "friend2n_4", "label": "friend2n_4", "shape": "dot", "title": "friend:4", "value": 2.0}, {"color": "gray", "font": {"color": "black"}, "id": "friendly2a_4", "label": "friendly2a_4", "shape": "triangle", "title": "friendly:3", "value": 0.30000000000000004}, {"color": "gray", "font": {"color": "black"}, "id": "good2a_4", "label": "good2a_4", "shape": "triangle", "title": "good:18", "value": 1.8}, {"color": "brown", "font": {"color": "black"}, "id": "great2a_4", "label": "great2a_4", "shape": "triangle", "title": "great:3", "value": 0.30000000000000004}, {"color": "gray", "font": {"color": "black"}, "id": "hotel2n_4", "label": "hotel2n_4", "shape": "dot", "title": "hotel:29", "value": 14.5}, {"color": "brown", "font": {"color": "black"}, "id": "nice2a_4", "label": "nice2a_4", "shape": "triangle", "title": "nice:3", "value": 0.30000000000000004}, {"color": "blue", "font": {"color": "black"}, "id": "night2n_4", "label": "night2n_4", "shape": "dot", "title": "night:6", "value": 3.0}, {"color": "blue", "font": {"color": "black"}, "id": "place2n_4", "label": "place2n_4", "shape": "dot", "title": "place:13", "value": 6.5}, {"color": "gray", "font": {"color": "black"}, "id": "restaurant2n_4", "label": "restaurant2n_4", "shape": "dot", "title": "restaurant:25", "value": 12.5}, {"color": "gray", "font": {"color": "black"}, "id": "room2n_4", "label": "room2n_4", "shape": "dot", "title": "room:36", "value": 18.0}, {"color": "blue", "font": {"color": "black"}, "id": "staff2n_4", "label": "staff2n_4", "shape": "dot", "title": "staff:8", "value": 4.0}, {"color": "gray", "font": {"color": "black"}, "id": "time2n_4", "label": "time2n_4", "shape": "dot", "title": "time:13", "value": 6.5}, {"color": "blue", "font": {"color": "black"}, "id": "way2n_4", "label": "way2n_4", "shape": "dot", "title": "way:3", "value": 1.5}, {"color": "blue", "font": {"color": "black"}, "id": "crab2n_5", "label": "crab2n_5", "shape": "dot", "title": "crab:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "fish2n_5", "label": "fish2n_5", "shape": "dot", "title": "fish:4", "value": 2.0}, {"color": "gray", "font": {"color": "black"}, "id": "food2n_5", "label": "food2n_5", "shape": "dot", "title": "food:16", "value": 8.0}, {"color": "blue", "font": {"color": "black"}, "id": "mcdonalds2n_5", "label": "mcdonalds2n_5", "shape": "dot", "title": "mcdonalds:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "quality2n_5", "label": "quality2n_5", "shape": "dot", "title": "quality:4", "value": 2.0}, {"color": "blue", "font": {"color": "black"}, "id": "taste2n_5", "label": "taste2n_5", "shape": "dot", "title": "taste:6", "value": 3.0}, {"color": "brown", "font": {"color": "black"}, "id": "amazing2a_6", "label": "amazing2a_6", "shape": "triangle", "title": "amazing:1", "value": 0.1}, {"color": "blue", "font": {"color": "black"}, "id": "city2n_6", "label": "city2n_6", "shape": "dot", "title": "city:5", "value": 2.5}, {"color": "gray", "font": {"color": "black"}, "id": "good2a_6", "label": "good2a_6", "shape": "triangle", "title": "good:18", "value": 1.8}, {"color": "blue", "font": {"color": "black"}, "id": "river2n_6", "label": "river2n_6", "shape": "dot", "title": "river:5", "value": 2.5}, {"color": "blue", "font": {"color": "black"}, "id": "view2n_6", "label": "view2n_6", "shape": "dot", "title": "view:6", "value": 3.0}, {"color": "blue", "font": {"color": "black"}, "id": "gym2n_7", "label": "gym2n_7", "shape": "dot", "title": "gym:6", "value": 3.0}, {"color": "gray", "font": {"color": "black"}, "id": "hotel2n_7", "label": "hotel2n_7", "shape": "dot", "title": "hotel:29", "value": 14.5}, {"color": "blue", "font": {"color": "black"}, "id": "sauna2n_7", "label": "sauna2n_7", "shape": "dot", "title": "sauna:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "yoga2n_7", "label": "yoga2n_7", "shape": "dot", "title": "yoga:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "leelooparadise2nhotel2n_8", "label": "leelooparadise2nhotel2n_8", "shape": "dot", "title": "leelooparadise hotel:1", "value": 0.5}, {"color": "red", "font": {"color": "black"}, "id": "recommend2v_8", "label": "recommend2v_8", "shape": "square", "title": "recommend:2", "value": 0.2}, {"color": "blue", "font": {"color": "black"}, "id": "temple2n_8", "label": "temple2n_8", "shape": "dot", "title": "temple:1", "value": 0.5}, {"color": "blue", "font": {"color": "black"}, "id": "visit2n_9", "label": "visit2n_9", "shape": "dot", "title": "visit:1", "value": 0.5}, {"color": "brown", "font": {"color": "black"}, "id": "worth2a_9", "label": "worth2a_9", "shape": "triangle", "title": "worth:1", "value": 0.1}, {"color": "red", "font": {"color": "black"}, "id": "complain2v_10", "label": "complain2v_10", "shape": "square", "title": "complain:1", "value": 0.1}, {"color": "blue", "font": {"color": "black"}, "id": "rush2n_10", "label": "rush2n_10", "shape": "dot", "title": "rush:1", "value": 0.5}, {"color": "brown", "font": {"color": "black"}, "id": "available2a_11", "label": "available2a_11", "shape": "triangle", "title": "available:1", "value": 0.1}, {"color": "blue", "font": {"color": "black"}, "id": "kind2n_11", "label": "kind2n_11", "shape": "dot", "title": "kind:1", "value": 0.5}, {"color": "brown", "font": {"color": "black"}, "id": "fresh2a_12", "label": "fresh2a_12", "shape": "triangle", "title": "fresh:1", "value": 0.1}, {"color": "blue", "font": {"color": "black"}, "id": "fruit2n_12", "label": "fruit2n_12", "shape": "dot", "title": "fruit:1", "value": 0.5}, {"color": "blue", "font": {"color": "black"}, "id": "aspect2n_13", "label": "aspect2n_13", "shape": "dot", "title": "aspect:1", "value": 0.5}, {"color": "brown", "font": {"color": "black"}, "id": "real2a_13", "label": "real2a_13", "shape": "triangle", "title": "real:1", "value": 0.1}, {"color": "blue", "font": {"color": "black"}, "id": "aunt2n_14", "label": "aunt2n_14", "shape": "dot", "title": "aunt:1", "value": 0.5}, {"color": "red", "font": {"color": "black"}, "id": "hope2v_14", "label": "hope2v_14", "shape": "square", "title": "hope:1", "value": 0.1}, {"color": "brown", "font": {"color": "black"}, "id": "acoustic2a_15", "label": "acoustic2a_15", "shape": "triangle", "title": "acoustic:1", "value": 0.1}, {"color": "blue", "font": {"color": "black"}, "id": "panel2n_15", "label": "panel2n_15", "shape": "dot", "title": "panel:1", "value": 0.5}, {"color": "blue", "font": {"color": "black"}, "id": "bustle2n_16", "label": "bustle2n_16", "shape": "dot", "title": "bustle:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "hustle2n_16", "label": "hustle2n_16", "shape": "dot", "title": "hustle:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "bath2n_17", "label": "bath2n_17", "shape": "dot", "title": "bath:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "shower2n_17", "label": "shower2n_17", "shape": "dot", "title": "shower:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "chair2n_18", "label": "chair2n_18", "shape": "dot", "title": "chair:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "table2n_18", "label": "table2n_18", "shape": "dot", "title": "table:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "station2n_19", "label": "station2n_19", "shape": "dot", "title": "station:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "train2n_19", "label": "train2n_19", "shape": "dot", "title": "train:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "ant2n_20", "label": "ant2n_20", "shape": "dot", "title": "ant:2", "value": 1.0}, {"color": "blue", "font": {"color": "black"}, "id": "bed2n_20", "label": "bed2n_20", "shape": "dot", "title": "bed:2", "value": 1.0}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "clean2a_0", "title": "5", "to": "room2n_0", "width": 2.321928094887362}, {"arrows": "to", "from": "good2a_0", "title": "4", "to": "breakfast2n_0", "width": 2.0}, {"arrows": "to", "from": "spacious2a_0", "title": "3", "to": "room2n_0", "width": 1.5849625007211563}, {"arrows": "to", "from": "well2a_0", "title": "3", "to": "room2n_0", "width": 1.5849625007211563}, {"arrows": "to", "from": "quiet2a_0", "title": "2", "to": "room2n_0", "width": 1.0}, {"arrows": "to", "from": "clean2a_0", "title": "2", "to": "bathroom2n_0", "width": 1.0}, {"arrows": "to", "from": "deluxe2a_0", "title": "2", "to": "room2n_0", "width": 1.0}, {"arrows": "to", "from": "well2a_0", "title": "2", "to": "roomclassroom2n_0", "width": 1.0}, {"arrows": "to", "from": "large2a_0", "title": "2", "to": "balcony2n_0", "width": 1.0}, {"arrows": "to", "from": "well2a_0", "title": "2", "to": "floor2n_0", "width": 1.0}, {"arrows": "to", "from": "big2a_0", "title": "2", "to": "room2n_0", "width": 1.0}, {"arrows": "to", "from": "varied2a_0", "title": "2", "to": "breakfast2n_0", "width": 1.0}, {"arrows": "to", "from": "room2n_0", "title": "6", "to": "floor2n_0", "width": 2.584962500721156}, {"arrows": "to", "from": "floor2n_0", "title": "6", "to": "room2n_0", "width": 2.584962500721156}, {"arrows": "to", "from": "pool2n_0", "title": "4", "to": "room2n_0", "width": 2.0}, {"arrows": "to", "from": "room2n_0", "title": "3", "to": "airconditioning2n_0", "width": 1.5849625007211563}, {"arrows": "to", "from": "staff2n_0", "title": "3", "to": "room2n_0", "width": 1.5849625007211563}, {"arrows": "to", "from": "airconditioning2n_0", "title": "3", "to": "room2n_0", "width": 1.5849625007211563}, {"arrows": "to", "from": "balcony2n_0", "title": "3", "to": "room2n_0", "width": 1.5849625007211563}, {"arrows": "to", "from": "room2n_0", "title": "3", "to": "balcony2n_0", "width": 1.5849625007211563}, {"arrows": "to", "from": "bar2n_0", "title": "2", "to": "room2n_0", "width": 1.0}, {"arrows": "to", "from": "room2n_0", "title": "2", "to": "bar2n_0", "width": 1.0}, {"arrows": "to", "from": "space2n_0", "title": "2", "to": "room2n_0", "width": 1.0}, {"arrows": "to", "from": "room2n_0", "title": "2", "to": "space2n_0", "width": 1.0}, {"arrows": "to", "from": "terrace2n_0", "title": "2", "to": "room2n_0", "width": 1.0}, {"arrows": "to", "from": "restaurant2n_0", "title": "2", "to": "room2n_0", "width": 1.0}, {"arrows": "to", "from": "bathroom2n_0", "title": "2", "to": "minibar2n_0", "width": 1.0}, {"arrows": "to", "from": "bathroom2n_0", "title": "2", "to": "room2n_0", "width": 1.0}, {"arrows": "to", "from": "minibar2n_0", "title": "2", "to": "bathroom2n_0", "width": 1.0}, {"arrows": "to", "from": "room2n_0", "title": "2", "to": "bathroom2n_0", "width": 1.0}, {"arrows": "to", "from": "room2n_0", "title": "2", "to": "fridge2n_0", "width": 1.0}, {"arrows": "to", "from": "airconditioning2n_0", "title": "2", "to": "change2n_0", "width": 1.0}, {"arrows": "to", "from": "time2n_0", "title": "2", "to": "room2n_0", "width": 1.0}, {"arrows": "to", "from": "fridge2n_0", "title": "2", "to": "room2n_0", "width": 1.0}, {"arrows": "to", "from": "change2n_0", "title": "2", "to": "airconditioning2n_0", "width": 1.0}, {"arrows": "to", "from": "front2n_0", "title": "2", "to": "terrace2n_0", "width": 1.0}, {"arrows": "to", "from": "terrace2n_0", "title": "2", "to": "front2n_0", "width": 1.0}, {"arrows": "to", "from": "room2n_0", "title": "2", "to": "window2n_0", "width": 1.0}, {"arrows": "to", "from": "window2n_0", "title": "2", "to": "room2n_0", "width": 1.0}, {"arrows": "to", "from": "room2n_0", "title": "2", "to": "terrace2n_0", "width": 1.0}, {"arrows": "to", "from": "breakfast2n_0", "title": "2", "to": "room2n_0", "width": 1.0}, {"arrows": "to", "from": "family2n_0", "title": "2", "to": "room2n_0", "width": 1.0}, {"arrows": "to", "from": "room2n_0", "title": "2", "to": "breakfast2n_0", "width": 1.0}, {"arrows": "to", "from": "good2a_1", "title": "10", "to": "food2n_1", "width": 3.3219280948873626}, {"arrows": "to", "from": "good2a_1", "title": "7", "to": "service2n_1", "width": 2.807354922057604}, {"arrows": "to", "from": "friendly2a_1", "title": "4", "to": "service2n_1", "width": 2.0}, {"arrows": "to", "from": "good2a_1", "title": "3", "to": "restaurant2n_1", "width": 1.5849625007211563}, {"arrows": "to", "from": "low2a_1", "title": "3", "to": "price2n_1", "width": 1.5849625007211563}, {"arrows": "to", "from": "good2a_1", "title": "3", "to": "value2n_1", "width": 1.5849625007211563}, {"arrows": "to", "from": "good2a_1", "title": "3", "to": "money2n_1", "width": 1.5849625007211563}, {"arrows": "to", "from": "close2a_1", "title": "2", "to": "restaurant2n_1", "width": 1.0}, {"arrows": "to", "from": "clean2a_1", "title": "2", "to": "restaurant2n_1", "width": 1.0}, {"arrows": "to", "from": "friendly2a_1", "title": "2", "to": "restaurant2n_1", "width": 1.0}, {"arrows": "to", "from": "high2a_1", "title": "2", "to": "price2n_1", "width": 1.0}, {"arrows": "to", "from": "affordable2a_1", "title": "2", "to": "price2n_1", "width": 1.0}, {"arrows": "to", "from": "long2a_1", "title": "2", "to": "time2n_1", "width": 1.0}, {"arrows": "to", "from": "cheap2a_1", "title": "2", "to": "price2n_1", "width": 1.0}, {"arrows": "to", "from": "good2a_1", "title": "2", "to": "burger2n_1", "width": 1.0}, {"arrows": "to", "from": "great2a_1", "title": "2", "to": "service2n_1", "width": 1.0}, {"arrows": "to", "from": "good2a_1", "title": "2", "to": "thai2nfood2n_1", "width": 1.0}, {"arrows": "to", "from": "local2a_1", "title": "2", "to": "restaurant2n_1", "width": 1.0}, {"arrows": "to", "from": "high2a_1", "title": "2", "to": "qualityhotel2n_1", "width": 1.0}, {"arrows": "to", "from": "good2a_1", "title": "2", "to": "price2n_1", "width": 1.0}, {"arrows": "to", "from": "good2a_1", "title": "2", "to": "picture2n_1", "width": 1.0}, {"arrows": "to", "from": "good2a_1", "title": "2", "to": "drink2n_1", "width": 1.0}, {"arrows": "to", "from": "tasty2a_1", "title": "2", "to": "food2n_1", "width": 1.0}, {"arrows": "to", "from": "hotel2n_1", "title": "7", "to": "time2n_1", "width": 2.807354922057604}, {"arrows": "to", "from": "money2n_1", "title": "6", "to": "value2n_1", "width": 2.584962500721156}, {"arrows": "to", "from": "value2n_1", "title": "6", "to": "money2n_1", "width": 2.584962500721156}, {"arrows": "to", "from": "food2n_1", "title": "5", "to": "price2n_1", "width": 2.321928094887362}, {"arrows": "to", "from": "price2n_1", "title": "5", "to": "food2n_1", "width": 2.321928094887362}, {"arrows": "to", "from": "hotel2n_1", "title": "4", "to": "food2n_1", "width": 2.0}, {"arrows": "to", "from": "shop2n_1", "title": "4", "to": "restaurant2n_1", "width": 2.0}, {"arrows": "to", "from": "hotel2n_1", "title": "4", "to": "restaurant2n_1", "width": 2.0}, {"arrows": "to", "from": "restaurant2n_1", "title": "3", "to": "thai2nfood2n_1", "width": 1.5849625007211563}, {"arrows": "to", "from": "night2n_1", "title": "3", "to": "time2n_1", "width": 1.5849625007211563}, {"arrows": "to", "from": "food2n_1", "title": "3", "to": "restaurant2n_1", "width": 1.5849625007211563}, {"arrows": "to", "from": "thai2nfood2n_1", "title": "3", "to": "restaurant2n_1", "width": 1.5849625007211563}, {"arrows": "to", "from": "food2n_1", "title": "3", "to": "service2n_1", "width": 1.5849625007211563}, {"arrows": "to", "from": "place2n_1", "title": "3", "to": "food2n_1", "width": 1.5849625007211563}, {"arrows": "to", "from": "service2n_1", "title": "3", "to": "food2n_1", "width": 1.5849625007211563}, {"arrows": "to", "from": "restaurant2n_1", "title": "3", "to": "food2n_1", "width": 1.5849625007211563}, {"arrows": "to", "from": "restaurant2n_1", "title": "2", "to": "time2n_1", "width": 1.0}, {"arrows": "to", "from": "couple2n_1", "title": "2", "to": "time2n_1", "width": 1.0}, {"arrows": "to", "from": "thai2nfood2n_1", "title": "2", "to": "price2n_1", "width": 1.0}, {"arrows": "to", "from": "price2n_1", "title": "2", "to": "drink2n_1", "width": 1.0}, {"arrows": "to", "from": "drink2n_1", "title": "2", "to": "price2n_1", "width": 1.0}, {"arrows": "to", "from": "price2n_1", "title": "2", "to": "thai2nfood2n_1", "width": 1.0}, {"arrows": "to", "from": "room2n_1", "title": "2", "to": "time2n_1", "width": 1.0}, {"arrows": "to", "from": "restaurant2n_1", "title": "2", "to": "service2n_1", "width": 1.0}, {"arrows": "to", "from": "pool2n_1", "title": "2", "to": "restaurant2n_1", "width": 1.0}, {"arrows": "to", "from": "service2n_1", "title": "2", "to": "restaurant2n_1", "width": 1.0}, {"arrows": "to", "from": "taste2n_1", "title": "2", "to": "food2n_1", "width": 1.0}, {"arrows": "to", "from": "staff2n_1", "title": "2", "to": "restaurant2n_1", "width": 1.0}, {"arrows": "to", "from": "food2n_1", "title": "2", "to": "time2n_1", "width": 1.0}, {"arrows": "to", "from": "time2n_1", "title": "2", "to": "food2n_1", "width": 1.0}, {"arrows": "to", "from": "time2n_1", "title": "2", "to": "restaurant2n_1", "width": 1.0}, {"arrows": "to", "from": "beach2n_1", "title": "2", "to": "restaurant2n_1", "width": 1.0}, {"arrows": "to", "from": "room2n_1", "title": "2", "to": "restaurant2n_1", "width": 1.0}, {"arrows": "to", "from": "great2a_2", "title": "4", "to": "location2n_2", "width": 2.0}, {"arrows": "to", "from": "private2a_2", "title": "3", "to": "beach2n_2", "width": 1.5849625007211563}, {"arrows": "to", "from": "good2a_2", "title": "3", "to": "location2n_2", "width": 1.5849625007211563}, {"arrows": "to", "from": "good2a_2", "title": "3", "to": "beach2n_2", "width": 1.5849625007211563}, {"arrows": "to", "from": "magnificent2a_2", "title": "2", "to": "island2n_2", "width": 1.0}, {"arrows": "to", "from": "nice2a_2", "title": "2", "to": "side2n_2", "width": 1.0}, {"arrows": "to", "from": "nottight2a_2", "title": "2", "to": "door2n_2", "width": 1.0}, {"arrows": "to", "from": "congested2a_2", "title": "2", "to": "beach2n_2", "width": 1.0}, {"arrows": "to", "from": "expensive2a_2", "title": "2", "to": "hotel2n_2", "width": 1.0}, {"arrows": "to", "from": "time2n_2", "title": "7", "to": "hotel2n_2", "width": 2.807354922057604}, {"arrows": "to", "from": "beach2n_2", "title": "6", "to": "hotel2n_2", "width": 2.584962500721156}, {"arrows": "to", "from": "hotel2n_2", "title": "6", "to": "beach2n_2", "width": 2.584962500721156}, {"arrows": "to", "from": "restaurant2n_2", "title": "4", "to": "shop2n_2", "width": 2.0}, {"arrows": "to", "from": "restaurant2n_2", "title": "4", "to": "hotel2n_2", "width": 2.0}, {"arrows": "to", "from": "food2n_2", "title": "4", "to": "hotel2n_2", "width": 2.0}, {"arrows": "to", "from": "hotel2n_2", "title": "3", "to": "location2n_2", "width": 1.5849625007211563}, {"arrows": "to", "from": "location2n_2", "title": "3", "to": "hotel2n_2", "width": 1.5849625007211563}, {"arrows": "to", "from": "pool2n_2", "title": "3", "to": "beach2n_2", "width": 1.5849625007211563}, {"arrows": "to", "from": "poolarea2n_2", "title": "2", "to": "hotel2n_2", "width": 1.0}, {"arrows": "to", "from": "swimming2n_2", "title": "2", "to": "beach2n_2", "width": 1.0}, {"arrows": "to", "from": "restaurant2n_2", "title": "2", "to": "beach2n_2", "width": 1.0}, {"arrows": "to", "from": "hotel2n_2", "title": "2", "to": "day2n_2", "width": 1.0}, {"arrows": "to", "from": "example2n_2", "title": "2", "to": "hotel2n_2", "width": 1.0}, {"arrows": "to", "from": "gym2n_2", "title": "2", "to": "hotel2n_2", "width": 1.0}, {"arrows": "to", "from": "khaolak2n_2", "title": "2", "to": "hotel2n_2", "width": 1.0}, {"arrows": "to", "from": "hotel2n_2", "title": "2", "to": "khaolak2n_2", "width": 1.0}, {"arrows": "to", "from": "day2n_2", "title": "2", "to": "hotel2n_2", "width": 1.0}, {"arrows": "to", "from": "hotel2n_2", "title": "2", "to": "example2n_2", "width": 1.0}, {"arrows": "to", "from": "beach2n_2", "title": "2", "to": "location2n_2", "width": 1.0}, {"arrows": "to", "from": "hotel2n_2", "title": "2", "to": "door2n_2", "width": 1.0}, {"arrows": "to", "from": "resort2n_2", "title": "2", "to": "beach2n_2", "width": 1.0}, {"arrows": "to", "from": "hotel2n_2", "title": "2", "to": "island2n_2", "width": 1.0}, {"arrows": "to", "from": "door2n_2", "title": "2", "to": "hotel2n_2", "width": 1.0}, {"arrows": "to", "from": "beach2n_2", "title": "2", "to": "swimming2n_2", "width": 1.0}, {"arrows": "to", "from": "bug2n_2", "title": "2", "to": "door2n_2", "width": 1.0}, {"arrows": "to", "from": "location2n_2", "title": "2", "to": "beach2n_2", "width": 1.0}, {"arrows": "to", "from": "door2n_2", "title": "2", "to": "bug2n_2", "width": 1.0}, {"arrows": "to", "from": "beach2n_2", "title": "2", "to": "meter2n_2", "width": 1.0}, {"arrows": "to", "from": "meter2n_2", "title": "2", "to": "beach2n_2", "width": 1.0}, {"arrows": "to", "from": "night2n_2", "title": "2", "to": "hotel2n_2", "width": 1.0}, {"arrows": "to", "from": "shop2n_2", "title": "2", "to": "beach2n_2", "width": 1.0}, {"arrows": "to", "from": "beach2n_2", "title": "2", "to": "shop2n_2", "width": 1.0}, {"arrows": "to", "from": "island2n_2", "title": "2", "to": "hotel2n_2", "width": 1.0}, {"arrows": "to", "from": "beach2n_2", "title": "2", "to": "resort2n_2", "width": 1.0}, {"arrows": "to", "from": "beach2n_2", "title": "2", "to": "island2n_2", "width": 1.0}, {"arrows": "to", "from": "island2n_2", "title": "2", "to": "beach2n_2", "width": 1.0}, {"arrows": "to", "from": "side2n_2", "title": "2", "to": "hotel2n_2", "width": 1.0}, {"arrows": "to", "from": "hotel2n_2", "title": "2", "to": "side2n_2", "width": 1.0}, {"arrows": "to", "from": "small2a_3", "title": "2", "to": "street2n_3", "width": 1.0}, {"arrows": "to", "from": "small2a_3", "title": "2", "to": "pool2n_3", "width": 1.0}, {"arrows": "to", "from": "room2n_3", "title": "4", "to": "pool2n_3", "width": 2.0}, {"arrows": "to", "from": "beach2n_3", "title": "3", "to": "pool2n_3", "width": 1.5849625007211563}, {"arrows": "to", "from": "pool2n_3", "title": "2", "to": "plenty2n_3", "width": 1.0}, {"arrows": "to", "from": "pool2n_3", "title": "2", "to": "sunlounger2n_3", "width": 1.0}, {"arrows": "to", "from": "pool2n_3", "title": "2", "to": "barservice2n_3", "width": 1.0}, {"arrows": "to", "from": "plenty2n_3", "title": "2", "to": "pool2n_3", "width": 1.0}, {"arrows": "to", "from": "time2n_3", "title": "2", "to": "couple2n_3", "width": 1.0}, {"arrows": "to", "from": "plenty2n_3", "title": "2", "to": "sunlounger2n_3", "width": 1.0}, {"arrows": "to", "from": "barservice2n_3", "title": "2", "to": "pool2n_3", "width": 1.0}, {"arrows": "to", "from": "sunlounger2n_3", "title": "2", "to": "plenty2n_3", "width": 1.0}, {"arrows": "to", "from": "pool2n_3", "title": "2", "to": "poolarea2n_3", "width": 1.0}, {"arrows": "to", "from": "sunlounger2n_3", "title": "2", "to": "pool2n_3", "width": 1.0}, {"arrows": "to", "from": "activity2n_3", "title": "2", "to": "poolarea2n_3", "width": 1.0}, {"arrows": "to", "from": "hotel2n_3", "title": "2", "to": "poolarea2n_3", "width": 1.0}, {"arrows": "to", "from": "poolarea2n_3", "title": "2", "to": "activity2n_3", "width": 1.0}, {"arrows": "to", "from": "restaurant2n_3", "title": "2", "to": "pool2n_3", "width": 1.0}, {"arrows": "to", "from": "poolarea2n_3", "title": "2", "to": "pool2n_3", "width": 1.0}, {"arrows": "to", "from": "couple2n_3", "title": "2", "to": "family2n_3", "width": 1.0}, {"arrows": "to", "from": "child2n_3", "title": "2", "to": "family2n_3", "width": 1.0}, {"arrows": "to", "from": "family2n_3", "title": "2", "to": "couple2n_3", "width": 1.0}, {"arrows": "to", "from": "villa2n_3", "title": "2", "to": "pool2n_3", "width": 1.0}, {"arrows": "to", "from": "pool2n_3", "title": "2", "to": "villa2n_3", "width": 1.0}, {"arrows": "to", "from": "family2n_3", "title": "2", "to": "child2n_3", "width": 1.0}, {"arrows": "to", "from": "room2n_3", "title": "2", "to": "family2n_3", "width": 1.0}, {"arrows": "to", "from": "child2n_3", "title": "2", "to": "pool2n_3", "width": 1.0}, {"arrows": "to", "from": "pool2n_3", "title": "2", "to": "child2n_3", "width": 1.0}, {"arrows": "to", "from": "nice2a_4", "title": "5", "to": "staff2n_4", "width": 2.321928094887362}, {"arrows": "to", "from": "nice2a_4", "title": "5", "to": "place2n_4", "width": 2.321928094887362}, {"arrows": "to", "from": "friendly2a_4", "title": "5", "to": "staff2n_4", "width": 2.321928094887362}, {"arrows": "to", "from": "good2a_4", "title": "2", "to": "way2n_4", "width": 1.0}, {"arrows": "to", "from": "good2a_4", "title": "2", "to": "place2n_4", "width": 1.0}, {"arrows": "to", "from": "great2a_4", "title": "2", "to": "place2n_4", "width": 1.0}, {"arrows": "to", "from": "dinner2n_4", "title": "4", "to": "friend2n_4", "width": 2.0}, {"arrows": "to", "from": "friend2n_4", "title": "4", "to": "dinner2n_4", "width": 2.0}, {"arrows": "to", "from": "time2n_4", "title": "3", "to": "night2n_4", "width": 1.5849625007211563}, {"arrows": "to", "from": "room2n_4", "title": "3", "to": "staff2n_4", "width": 1.5849625007211563}, {"arrows": "to", "from": "food2n_4", "title": "3", "to": "place2n_4", "width": 1.5849625007211563}, {"arrows": "to", "from": "place2n_4", "title": "3", "to": "night2n_4", "width": 1.5849625007211563}, {"arrows": "to", "from": "night2n_4", "title": "3", "to": "place2n_4", "width": 1.5849625007211563}, {"arrows": "to", "from": "way2n_4", "title": "2", "to": "bangkok2n_4", "width": 1.0}, {"arrows": "to", "from": "friend2n_4", "title": "2", "to": "evening2n_4", "width": 1.0}, {"arrows": "to", "from": "place2n_4", "title": "2", "to": "evening2n_4", "width": 1.0}, {"arrows": "to", "from": "evening2n_4", "title": "2", "to": "friend2n_4", "width": 1.0}, {"arrows": "to", "from": "staff2n_4", "title": "2", "to": "place2n_4", "width": 1.0}, {"arrows": "to", "from": "place2n_4", "title": "2", "to": "staff2n_4", "width": 1.0}, {"arrows": "to", "from": "hotel2n_4", "title": "2", "to": "night2n_4", "width": 1.0}, {"arrows": "to", "from": "restaurant2n_4", "title": "2", "to": "staff2n_4", "width": 1.0}, {"arrows": "to", "from": "evening2n_4", "title": "2", "to": "place2n_4", "width": 1.0}, {"arrows": "to", "from": "bangkok2n_4", "title": "2", "to": "way2n_4", "width": 1.0}, {"arrows": "to", "from": "place2n_4", "title": "2", "to": "bangkok2n_4", "width": 1.0}, {"arrows": "to", "from": "bangkok2n_4", "title": "2", "to": "place2n_4", "width": 1.0}, {"arrows": "to", "from": "fish2n_5", "title": "2", "to": "crab2n_5", "width": 1.0}, {"arrows": "to", "from": "crab2n_5", "title": "2", "to": "fish2n_5", "width": 1.0}, {"arrows": "to", "from": "taste2n_5", "title": "2", "to": "fish2n_5", "width": 1.0}, {"arrows": "to", "from": "food2n_5", "title": "2", "to": "taste2n_5", "width": 1.0}, {"arrows": "to", "from": "fish2n_5", "title": "2", "to": "taste2n_5", "width": 1.0}, {"arrows": "to", "from": "quality2n_5", "title": "2", "to": "taste2n_5", "width": 1.0}, {"arrows": "to", "from": "taste2n_5", "title": "2", "to": "quality2n_5", "width": 1.0}, {"arrows": "to", "from": "quality2n_5", "title": "2", "to": "mcdonalds2n_5", "width": 1.0}, {"arrows": "to", "from": "mcdonalds2n_5", "title": "2", "to": "quality2n_5", "width": 1.0}, {"arrows": "to", "from": "amazing2a_6", "title": "3", "to": "view2n_6", "width": 1.5849625007211563}, {"arrows": "to", "from": "good2a_6", "title": "2", "to": "city2n_6", "width": 1.0}, {"arrows": "to", "from": "good2a_6", "title": "2", "to": "river2n_6", "width": 1.0}, {"arrows": "to", "from": "good2a_6", "title": "2", "to": "view2n_6", "width": 1.0}, {"arrows": "to", "from": "view2n_6", "title": "3", "to": "city2n_6", "width": 1.5849625007211563}, {"arrows": "to", "from": "city2n_6", "title": "3", "to": "view2n_6", "width": 1.5849625007211563}, {"arrows": "to", "from": "river2n_6", "title": "2", "to": "city2n_6", "width": 1.0}, {"arrows": "to", "from": "view2n_6", "title": "2", "to": "river2n_6", "width": 1.0}, {"arrows": "to", "from": "city2n_6", "title": "2", "to": "river2n_6", "width": 1.0}, {"arrows": "to", "from": "river2n_6", "title": "2", "to": "view2n_6", "width": 1.0}, {"arrows": "to", "from": "gym2n_7", "title": "2", "to": "yoga2n_7", "width": 1.0}, {"arrows": "to", "from": "hotel2n_7", "title": "2", "to": "gym2n_7", "width": 1.0}, {"arrows": "to", "from": "sauna2n_7", "title": "2", "to": "gym2n_7", "width": 1.0}, {"arrows": "to", "from": "gym2n_7", "title": "2", "to": "sauna2n_7", "width": 1.0}, {"arrows": "to", "from": "yoga2n_7", "title": "2", "to": "gym2n_7", "width": 1.0}, {"arrows": "to", "from": "recommend2v_8", "title": "2", "to": "temple2n_8", "width": 1.0}, {"arrows": "to", "from": "recommend2v_8", "title": "2", "to": "leelooparadise2nhotel2n_8", "width": 1.0}, {"arrows": "to", "from": "worth2a_9", "title": "2", "to": "visit2n_9", "width": 1.0}, {"arrows": "to", "from": "complain2v_10", "title": "2", "to": "rush2n_10", "width": 1.0}, {"arrows": "to", "from": "available2a_11", "title": "2", "to": "kind2n_11", "width": 1.0}, {"arrows": "to", "from": "fresh2a_12", "title": "2", "to": "fruit2n_12", "width": 1.0}, {"arrows": "to", "from": "real2a_13", "title": "2", "to": "aspect2n_13", "width": 1.0}, {"arrows": "to", "from": "hope2v_14", "title": "2", "to": "aunt2n_14", "width": 1.0}, {"arrows": "to", "from": "acoustic2a_15", "title": "2", "to": "panel2n_15", "width": 1.0}, {"arrows": "to", "from": "hustle2n_16", "title": "3", "to": "bustle2n_16", "width": 1.5849625007211563}, {"arrows": "to", "from": "bustle2n_16", "title": "3", "to": "hustle2n_16", "width": 1.5849625007211563}, {"arrows": "to", "from": "shower2n_17", "title": "2", "to": "bath2n_17", "width": 1.0}, {"arrows": "to", "from": "bath2n_17", "title": "2", "to": "shower2n_17", "width": 1.0}, {"arrows": "to", "from": "chair2n_18", "title": "2", "to": "table2n_18", "width": 1.0}, {"arrows": "to", "from": "table2n_18", "title": "2", "to": "chair2n_18", "width": 1.0}, {"arrows": "to", "from": "station2n_19", "title": "2", "to": "train2n_19", "width": 1.0}, {"arrows": "to", "from": "train2n_19", "title": "2", "to": "station2n_19", "width": 1.0}, {"arrows": "to", "from": "ant2n_20", "title": "2", "to": "bed2n_20", "width": 1.0}, {"arrows": "to", "from": "bed2n_20", "title": "2", "to": "ant2n_20", "width": 1.0}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "cubicBezier"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+                  // if this network requires displaying the configure window,
+                  // put it in its div
+                  options.configure["container"] = document.getElementById("config");
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
