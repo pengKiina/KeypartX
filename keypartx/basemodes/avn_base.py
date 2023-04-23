@@ -14,17 +14,27 @@ from collections import Counter
 
 #import coreferee
 
+#import coreferee
+
 def coreNLP():
   nlp = spacy.load('en_core_web_lg') #"en_core_web_sm"
+  crossLC =""
   try:
     import coreferee
     nlp.add_pipe('coreferee')
-    print('Coreference is Available')
+    print('coreferee is Available')
+    crossLC = 0
   except:
-    print('Coreference is NOT available, otherwise install "coreferee" and import separately before REINSTALL "keypartx"!!!')
-  return nlp 
+    try:
+      import crosslingual_coreference
+      nlp.add_pipe("xx_coref", config={"chunk_size": 2500, "chunk_overlap": 2, "device": 0})
+      print('crosslingual-corefernce is Available')
+      crossLC = 1
+    except:
+      print("No Coreference package avaiable")
+  return nlp, crossLC
 
-nlp = coreNLP()
+nlp,crossLC = coreNLP()
 
 
 #1 count frequence of list and word cloud 
@@ -130,36 +140,42 @@ def wordCloud(freq_dict, background_color="turquoise",max_words=200,collocations
 
 #core_text = "Although he was very busy with his work, Peter had had enough of it. He and his wife decided they needed a holiday. They travelled to Spain because they loved the country very much."
 def coref(core_text):
-  doc = nlp(core_text)
-  #doc._.coref_chains.print()
-  refs = doc._.coref_chains
+  if crossLC == 0:
+    doc = nlp(core_text)
+    #doc._.coref_chains.print()
+    refs = doc._.coref_chains
 
-  keyNs = []
-  key_list =[]
-  for ref in refs:
-    keyN = ref[ref.most_specific_mention_index]
-    if len(keyN)==1:
-        key_l = [a[0] for a in list(ref)]
-        keyNs.append(keyN[0])
-        key_list.append(key_l)
+    keyNs = []
+    key_list =[]
+    for ref in refs:
+      keyN = ref[ref.most_specific_mention_index]
+      if len(keyN)==1:
+          key_l = [a[0] for a in list(ref)]
+          keyNs.append(keyN[0])
+          key_list.append(key_l)
 
-  words_index = {}
-  for i, token in enumerate(doc):
-    for keyN, keyL in zip(keyNs, key_list):
-      if i in keyL and token.tag_ =="PRP":
-        #print(token.text)
-        word = doc[keyN].text
-        words_index.update({i:word})
-  words2 = []
-  for i, token in enumerate(doc):
-    if i in list(words_index):
-      word = words_index[i]
-    else:
-      word = token.text
-    words2.append(word)
-  coref_text = " ".join(words2)
+    words_index = {}
+    for i, token in enumerate(doc):
+      for keyN, keyL in zip(keyNs, key_list):
+        if i in keyL and token.tag_ =="PRP":
+          #print(token.text)
+          word = doc[keyN].text
+          words_index.update({i:word})
+    words2 = []
+    for i, token in enumerate(doc):
+      if i in list(words_index):
+        word = words_index[i]
+      else:
+        word = token.text
+      words2.append(word)
+    coref_text = " ".join(words2)
+  elif crossLC ==1:
+    doc =   nlp(core_text)                   # add crosslingual-corefernce on 23.04.2023
+    coref_text =doc._.resolved_text["resolved_text"]
+  else:
+    coref_text = core_text
+     
   return coref_text
-
 
 #3 lemmatize the words
 def lemma_en(text):
