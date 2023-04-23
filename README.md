@@ -3,6 +3,7 @@
 [![PyPI - PyPi](https://img.shields.io/pypi/v/keypartx)](https://pypi.org/project/keypartx/)
 [![PyPI - License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/pengKiina/KeypartX/blob/main/LICENSE)
 [![arXiv](https://img.shields.io/badge/arXiv-2203.05794-<COLOR>.svg)](https://arxiv.org/abs/2209.11844)
+<a href="https://pypi.org/project/keypartx/"><img src="https://static.pepy.tech/badge/keypartx" alt="PyPi downloads"></a>
 
 # KeypartX
 <img src="https://github.com/pengKiina/KeypartX/raw/main/images/keypartx_logo.png" width="40%" height="20%" align="right" />
