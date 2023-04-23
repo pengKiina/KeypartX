@@ -38,6 +38,7 @@ src="https://github.com/pengKiina/KeypartX/raw/main/images/keyparts_sent_network
 ```bash
 if need coreferee: 
  pip install keypartx[coreferee_spacy] 
+ #!pip install keypartx[crosslingual-coreference_spacy] a alternative coreference package 
  python3 -m coreferee install en 
  python -m spacy download en_core_web_lg 
 
